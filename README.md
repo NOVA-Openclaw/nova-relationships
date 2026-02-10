@@ -152,6 +152,17 @@ The system includes experimental infrastructure for building trust networks betw
 - PostgreSQL (for NOVA Memory database)
 - OpenSSL (for certificate operations)
 
+### Quick Install
+
+The installer automatically sets up all required symlinks and dependencies:
+
+```bash
+cd ~/clawd/nova-relationships
+./agent-install.sh
+```
+
+**Symlink Convention:** The installer creates `~/nova-relationships` → repo location. This allows hooks in other projects (like nova-memory) to import entity-resolver via `../../../nova-relationships/lib/entity-resolver` regardless of where the repo is cloned.
+
 ### Database Setup
 ```sql
 -- Create entities table
