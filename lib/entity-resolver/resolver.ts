@@ -3,6 +3,7 @@
  */
 
 import pg from "pg";
+import * as os from "os";
 import { Entity, EntityFacts, EntityIdentifiers, DbEntity, DbEntityFact } from "./types";
 
 const { Pool } = pg;
@@ -11,14 +12,23 @@ const { Pool } = pg;
 let dbPool: pg.Pool | null = null;
 
 /**
+ * Derive database name from username (same pattern as nova-memory)
+ */
+function getDatabaseName(): string {
+  const user = process.env.POSTGRES_USER || os.userInfo().username;
+  return process.env.POSTGRES_DB || `${user.replace(/-/g, '_')}_memory`;
+}
+
+/**
  * Get or create database connection pool
  */
 function getDbPool(): pg.Pool {
   if (!dbPool) {
+    const dbUser = process.env.POSTGRES_USER || os.userInfo().username;
     dbPool = new Pool({
       host: process.env.POSTGRES_HOST || "localhost",
-      database: process.env.POSTGRES_DB || "nova_memory",
-      user: process.env.POSTGRES_USER || "nova",
+      database: getDatabaseName(),
+      user: dbUser,
       password: process.env.POSTGRES_PASSWORD,
       max: 5,
       idleTimeoutMillis: 30000,

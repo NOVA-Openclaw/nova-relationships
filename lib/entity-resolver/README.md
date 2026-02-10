@@ -155,9 +155,11 @@ interface EntityIdentifiers {
 ## Database
 
 Connects to PostgreSQL database:
-- **Database:** `nova_memory` (configurable via `POSTGRES_DB`)
+- **Database:** Automatically derived from OS username as `{username}_memory` (hyphens → underscores)
+  - Examples: `nova` → `nova_memory`, `nova-staging` → `nova_staging_memory`
+  - Override with `POSTGRES_DB` environment variable if needed
 - **Host:** `localhost` (configurable via `POSTGRES_HOST`)
-- **User:** `nova` (configurable via `POSTGRES_USER`)
+- **User:** OS username (configurable via `POSTGRES_USER`)
 - **Password:** Set via `POSTGRES_PASSWORD` env var
 
 ## Usage Example
