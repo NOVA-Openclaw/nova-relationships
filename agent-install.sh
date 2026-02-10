@@ -161,6 +161,24 @@ verify_files() {
     echo ""
     echo "File verification..."
     
+    # Check home symlink
+    if [ -L "$HOME/nova-relationships" ]; then
+        TARGET=$(readlink -f "$HOME/nova-relationships" 2>/dev/null || readlink "$HOME/nova-relationships")
+        if [ "$TARGET" = "$SCRIPT_DIR" ]; then
+            echo -e "  ${CHECK_MARK} Home symlink correct: ~/nova-relationships → $SCRIPT_DIR"
+        else
+            echo -e "  ${WARNING} Home symlink points to wrong location: $TARGET"
+            echo "      Expected: $SCRIPT_DIR"
+            VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
+        fi
+    elif [ -d "$HOME/nova-relationships" ]; then
+        echo -e "  ${WARNING} ~/nova-relationships exists but is not a symlink"
+        VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
+    else
+        echo -e "  ${CROSS_MARK} Home symlink not found: ~/nova-relationships"
+        VERIFICATION_ERRORS=$((VERIFICATION_ERRORS + 1))
+    fi
+    
     # Check project symlink
     if [ -L "$OPENCLAW_PROJECTS/nova-relationships" ]; then
         TARGET=$(readlink -f "$OPENCLAW_PROJECTS/nova-relationships" 2>/dev/null || readlink "$OPENCLAW_PROJECTS/nova-relationships")
@@ -412,7 +430,44 @@ if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
 fi
 
 # ============================================
-# Part 3: OpenClaw Project Symlink
+# Part 3: Home Directory Symlink
+# ============================================
+echo ""
+echo "Home directory symlink setup..."
+
+HOME_LINK="$HOME/nova-relationships"
+
+# Handle existing symlink/directory
+if [ -L "$HOME_LINK" ]; then
+    CURRENT_TARGET=$(readlink "$HOME_LINK")
+    if [ "$CURRENT_TARGET" = "$SCRIPT_DIR" ]; then
+        echo -e "  ${CHECK_MARK} Home symlink already correct"
+    else
+        if [ $FORCE_INSTALL -eq 1 ]; then
+            rm "$HOME_LINK"
+            ln -s "$SCRIPT_DIR" "$HOME_LINK"
+            echo -e "  ${CHECK_MARK} Updated home symlink"
+        else
+            echo -e "  ${WARNING} Home symlink points to different location: $CURRENT_TARGET"
+            echo "      Use --force to update"
+        fi
+    fi
+elif [ -e "$HOME_LINK" ]; then
+    if [ $FORCE_INSTALL -eq 1 ]; then
+        rm -rf "$HOME_LINK"
+        ln -s "$SCRIPT_DIR" "$HOME_LINK"
+        echo -e "  ${CHECK_MARK} Replaced directory with home symlink"
+    else
+        echo -e "  ${WARNING} $HOME_LINK exists but is not a symlink"
+        echo "      Use --force to replace"
+    fi
+else
+    ln -s "$SCRIPT_DIR" "$HOME_LINK"
+    echo -e "  ${CHECK_MARK} Created home symlink: ~/nova-relationships → $SCRIPT_DIR"
+fi
+
+# ============================================
+# Part 4: OpenClaw Project Symlink
 # ============================================
 echo ""
 echo "OpenClaw project integration..."
@@ -452,7 +507,7 @@ else
 fi
 
 # ============================================
-# Part 4: Skills Installation
+# Part 5: Skills Installation
 # ============================================
 echo ""
 echo "Skills installation..."
@@ -498,7 +553,7 @@ else
 fi
 
 # ============================================
-# Part 5: Certificate Authority Setup
+# Part 6: Certificate Authority Setup
 # ============================================
 echo ""
 echo "Certificate Authority setup..."
@@ -539,7 +594,7 @@ else
 fi
 
 # ============================================
-# Part 6: Verification
+# Part 7: Verification
 # ============================================
 echo ""
 verify_schema
@@ -568,7 +623,8 @@ echo "  • nova-ca infrastructure"
 echo ""
 
 echo "Project location:"
-echo "  • Linked: $OPENCLAW_PROJECTS/nova-relationships → $SCRIPT_DIR"
+echo "  • Home: ~/nova-relationships → $SCRIPT_DIR"
+echo "  • Projects: $OPENCLAW_PROJECTS/nova-relationships → $SCRIPT_DIR"
 echo ""
 
 echo "Usage examples:"
