@@ -4,7 +4,7 @@
 
 import pg from "pg";
 import * as os from "os";
-import { Entity, EntityFacts, EntityIdentifiers, DbEntity, DbEntityFact } from "./types";
+import type { Entity, EntityFacts, EntityIdentifiers, DbEntity, DbEntityFact } from "./types.ts";
 
 const { Pool } = pg;
 

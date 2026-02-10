@@ -2,7 +2,7 @@
  * Session-aware entity caching
  */
 
-import { Entity } from "./types";
+import type { Entity } from "./types.ts";
 
 interface CacheEntry {
   entity: Entity;
