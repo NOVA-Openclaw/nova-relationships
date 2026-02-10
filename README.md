@@ -199,7 +199,10 @@ CREATE INDEX idx_relationships_to_entity ON entity_relationships(to_entity_id);
 ```bash
 # Database connection
 POSTGRES_HOST=localhost
-POSTGRES_DB=nova_memory  
+# Database name is automatically derived from OS username: {username}_memory
+# Examples: nova → nova_memory, nova-staging → nova_staging_memory  
+# Hyphens in usernames are replaced with underscores
+# Override with POSTGRES_DB if needed (e.g., POSTGRES_DB=custom_memory)
 POSTGRES_USER=nova
 POSTGRES_PASSWORD=your_password
 

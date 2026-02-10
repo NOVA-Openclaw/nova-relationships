@@ -20,6 +20,8 @@ cd nova-relationships
 2. **Database Setup**
 ```bash
 # Create database and user
+# Database name follows pattern: {username}_memory
+# For user 'nova': nova_memory, for 'nova-staging': nova_staging_memory
 sudo -u postgres createdb nova_memory
 sudo -u postgres createuser nova
 
@@ -215,6 +217,7 @@ ON entity_relationships(strength);
 2. **Test Migration**
 ```bash
 # Test on development database
+# Database name pattern: {username}_memory (e.g., nova_memory, john_staging_memory)
 psql -U nova -d nova_memory_dev -f migrations/003_add_relationship_strength.sql
 ```
 
@@ -444,7 +447,7 @@ We use semantic versioning (semver):
 # Check database is running
 sudo systemctl status postgresql
 
-# Check connection
+# Check connection (database name derived from username)
 psql -U nova -d nova_memory -c "SELECT 1;"
 
 # Check environment variables

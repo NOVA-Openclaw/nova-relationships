@@ -183,7 +183,9 @@ The library connects to the NOVA memory database (PostgreSQL) using connection p
 - **Max connections**: 5 concurrent connections
 - **Idle timeout**: 30 seconds
 - **Connection timeout**: 5 seconds
-- **Database**: `nova_memory` (configurable via `POSTGRES_DB`)
+- **Database**: Dynamically derived from OS username as `{username}_memory` (hyphens replaced with underscores)
+  - Examples: `nova` → `nova_memory`, `nova-staging` → `nova_staging_memory`
+  - Override with `POSTGRES_DB` environment variable if needed
 - **Host**: `localhost` (configurable via `POSTGRES_HOST`)
 
 **Query Strategy:**
@@ -379,8 +381,11 @@ export async function syncEntityData() {
 ```bash
 # Database connection (required)
 POSTGRES_HOST=localhost          # Database host
-POSTGRES_DB=nova_memory          # Database name
-POSTGRES_USER=nova               # Database user
+# Database name automatically derived from OS username: {username}_memory
+# Examples: nova → nova_memory, nova-staging → nova_staging_memory  
+# Hyphens in usernames are replaced with underscores
+# Override with POSTGRES_DB if needed (e.g., POSTGRES_DB=custom_memory)
+POSTGRES_USER=nova               # Database user (defaults to OS username)
 POSTGRES_PASSWORD=secret         # Database password
 
 # Optional tuning

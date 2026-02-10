@@ -725,7 +725,10 @@ class BulkEntityProcessor {
 ```bash
 # Database configuration
 POSTGRES_HOST=localhost
-POSTGRES_DB=nova_memory
+# Database name is automatically derived from OS username: {username}_memory
+# Examples: nova → nova_memory, nova-staging → nova_staging_memory
+# Hyphens in usernames are replaced with underscores
+# Override with POSTGRES_DB if needed (e.g., POSTGRES_DB=custom_memory)
 POSTGRES_USER=nova
 POSTGRES_PASSWORD=secure_password
 
@@ -759,7 +762,9 @@ services:
   nova-db:
     image: postgres:15
     environment:
-      POSTGRES_DB: nova_memory
+      # Database name pattern: {username}_memory (hyphens → underscores)
+      # This example assumes 'nova' user, adjust for your environment
+      POSTGRES_DB: nova_memory  
       POSTGRES_USER: nova
       POSTGRES_PASSWORD: secure_password
     volumes:
@@ -772,7 +777,8 @@ services:
     build: .
     environment:
       POSTGRES_HOST: nova-db
-      POSTGRES_DB: nova_memory
+      # Database name automatically derived from OS username or POSTGRES_USER
+      # Will use: {POSTGRES_USER}_memory → nova_memory 
       POSTGRES_USER: nova
       POSTGRES_PASSWORD: secure_password
       ENTITY_CACHE_TTL_MS: 1800000

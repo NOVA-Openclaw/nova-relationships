@@ -210,8 +210,10 @@ The library uses the same database configuration as the hook:
 
 ```bash
 POSTGRES_HOST=localhost      # default
-POSTGRES_DB=nova_memory      # default
-POSTGRES_USER=nova           # default
+# Database name auto-derived from OS username: {username}_memory
+# Examples: nova → nova_memory, nova-staging → nova_staging_memory
+# Override with POSTGRES_DB if needed (e.g., POSTGRES_DB=custom_memory)
+POSTGRES_USER=nova           # default (uses OS username)
 POSTGRES_PASSWORD=           # optional
 ```
 
