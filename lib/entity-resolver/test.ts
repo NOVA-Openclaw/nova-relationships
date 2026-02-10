@@ -19,7 +19,7 @@ import {
   clearCache,
   getCacheStats,
   closeDbPool,
-} from "./index";
+} from "./index.ts";
 
 async function test() {
   const identifier = process.argv[2];

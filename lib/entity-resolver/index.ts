@@ -34,7 +34,7 @@ export {
   getEntityProfile,
   getAllEntityFacts,
   closeDbPool,
-} from "./resolver";
+} from "./resolver.ts";
 
 // Export cache functions
 export {
@@ -42,11 +42,11 @@ export {
   setCachedEntity,
   clearCache,
   getCacheStats,
-} from "./cache";
+} from "./cache.ts";
 
 // Export types
 export type {
   Entity,
   EntityFacts,
   EntityIdentifiers,
-} from "./types";
+} from "./types.ts";
