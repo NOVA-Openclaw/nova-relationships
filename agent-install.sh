@@ -82,6 +82,21 @@ VERIFICATION_PASSED=0
 VERIFICATION_WARNINGS=0
 VERIFICATION_ERRORS=0
 
+# Copy a directory tree excluding node_modules and dist directories
+# Usage: copy_excluding <source_dir> <target_dir>
+copy_excluding() {
+    local source="$1"
+    local target="$2"
+    mkdir -p "$target"
+    (cd "$source" && find . -type f \
+        -not -path '*/node_modules/*' \
+        -not -path '*/dist/*' \
+        -print0 | while IFS= read -r -d '' f; do
+        mkdir -p "$target/$(dirname "$f")"
+        cp "$f" "$target/$f"
+    done)
+}
+
 echo ""
 echo "═══════════════════════════════════════════"
 if [ $VERIFY_ONLY -eq 1 ]; then
