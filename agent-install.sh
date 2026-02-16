@@ -176,57 +176,16 @@ verify_files() {
     echo ""
     echo "File verification..."
     
-    # Check home symlink
-    if [ -L "$HOME/nova-relationships" ]; then
-        TARGET=$(readlink -f "$HOME/nova-relationships" 2>/dev/null || readlink "$HOME/nova-relationships")
-        if [ "$TARGET" = "$SCRIPT_DIR" ]; then
-            echo -e "  ${CHECK_MARK} Home symlink correct: ~/nova-relationships → $SCRIPT_DIR"
+    # Check skill directory
+    if [ -d "$WORKSPACE/skills/certificate-authority" ]; then
+        if [ -f "$WORKSPACE/skills/certificate-authority/SKILL.md" ]; then
+            echo -e "  ${CHECK_MARK} Skill installed: certificate-authority"
         else
-            echo -e "  ${WARNING} Home symlink points to wrong location: $TARGET"
-            echo "      Expected: $SCRIPT_DIR"
+            echo -e "  ${WARNING} certificate-authority directory exists but missing SKILL.md"
             VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
         fi
-    elif [ -d "$HOME/nova-relationships" ]; then
-        echo -e "  ${WARNING} ~/nova-relationships exists but is not a symlink"
-        VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
     else
-        echo -e "  ${CROSS_MARK} Home symlink not found: ~/nova-relationships"
-        VERIFICATION_ERRORS=$((VERIFICATION_ERRORS + 1))
-    fi
-    
-    # Check project symlink
-    if [ -L "$OPENCLAW_PROJECTS/nova-relationships" ]; then
-        TARGET=$(readlink -f "$OPENCLAW_PROJECTS/nova-relationships" 2>/dev/null || readlink "$OPENCLAW_PROJECTS/nova-relationships")
-        if [ "$TARGET" = "$SCRIPT_DIR" ]; then
-            echo -e "  ${CHECK_MARK} Project symlink correct: $OPENCLAW_PROJECTS/nova-relationships → $SCRIPT_DIR"
-        else
-            echo -e "  ${WARNING} Project symlink points to wrong location: $TARGET"
-            echo "      Expected: $SCRIPT_DIR"
-            VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
-        fi
-    elif [ -d "$OPENCLAW_PROJECTS/nova-relationships" ]; then
-        echo -e "  ${WARNING} $OPENCLAW_PROJECTS/nova-relationships exists but is not a symlink"
-        VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
-    else
-        echo -e "  ${CROSS_MARK} Project not linked to $OPENCLAW_PROJECTS/"
-        VERIFICATION_ERRORS=$((VERIFICATION_ERRORS + 1))
-    fi
-    
-    # Check skill symlink
-    if [ -L "$WORKSPACE/skills/certificate-authority" ]; then
-        TARGET=$(readlink -f "$WORKSPACE/skills/certificate-authority" 2>/dev/null || readlink "$WORKSPACE/skills/certificate-authority")
-        EXPECTED="$SCRIPT_DIR/skills/certificate-authority"
-        if [ "$TARGET" = "$EXPECTED" ]; then
-            echo -e "  ${CHECK_MARK} Skill symlink correct: certificate-authority"
-        else
-            echo -e "  ${WARNING} Skill symlink points to wrong location: $TARGET"
-            VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
-        fi
-    elif [ -d "$WORKSPACE/skills/certificate-authority" ]; then
-        echo -e "  ${WARNING} certificate-authority exists but is not a symlink"
-        VERIFICATION_WARNINGS=$((VERIFICATION_WARNINGS + 1))
-    else
-        echo -e "  ${CROSS_MARK} Skill not linked: certificate-authority"
+        echo -e "  ${CROSS_MARK} Skill not installed: certificate-authority"
         VERIFICATION_ERRORS=$((VERIFICATION_ERRORS + 1))
     fi
     
@@ -445,84 +404,7 @@ if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
 fi
 
 # ============================================
-# Part 3: Home Directory Symlink
-# ============================================
-echo ""
-echo "Home directory symlink setup..."
-
-HOME_LINK="$HOME/nova-relationships"
-
-# Handle existing symlink/directory
-if [ -L "$HOME_LINK" ]; then
-    CURRENT_TARGET=$(readlink "$HOME_LINK")
-    if [ "$CURRENT_TARGET" = "$SCRIPT_DIR" ]; then
-        echo -e "  ${CHECK_MARK} Home symlink already correct"
-    else
-        if [ $FORCE_INSTALL -eq 1 ]; then
-            rm "$HOME_LINK"
-            ln -s "$SCRIPT_DIR" "$HOME_LINK"
-            echo -e "  ${CHECK_MARK} Updated home symlink"
-        else
-            echo -e "  ${WARNING} Home symlink points to different location: $CURRENT_TARGET"
-            echo "      Use --force to update"
-        fi
-    fi
-elif [ -e "$HOME_LINK" ]; then
-    if [ $FORCE_INSTALL -eq 1 ]; then
-        rm -rf "$HOME_LINK"
-        ln -s "$SCRIPT_DIR" "$HOME_LINK"
-        echo -e "  ${CHECK_MARK} Replaced directory with home symlink"
-    else
-        echo -e "  ${WARNING} $HOME_LINK exists but is not a symlink"
-        echo "      Use --force to replace"
-    fi
-else
-    ln -s "$SCRIPT_DIR" "$HOME_LINK"
-    echo -e "  ${CHECK_MARK} Created home symlink: ~/nova-relationships → $SCRIPT_DIR"
-fi
-
-# ============================================
-# Part 4: OpenClaw Project Symlink
-# ============================================
-echo ""
-echo "OpenClaw project integration..."
-
-# Create projects directory if needed
-mkdir -p "$OPENCLAW_PROJECTS"
-
-PROJECT_LINK="$OPENCLAW_PROJECTS/nova-relationships"
-
-# Handle existing symlink/directory
-if [ -L "$PROJECT_LINK" ]; then
-    CURRENT_TARGET=$(readlink "$PROJECT_LINK")
-    if [ "$CURRENT_TARGET" = "$SCRIPT_DIR" ]; then
-        echo -e "  ${CHECK_MARK} Project symlink already correct"
-    else
-        if [ $FORCE_INSTALL -eq 1 ]; then
-            rm "$PROJECT_LINK"
-            ln -s "$SCRIPT_DIR" "$PROJECT_LINK"
-            echo -e "  ${CHECK_MARK} Updated project symlink"
-        else
-            echo -e "  ${WARNING} Project symlink points to different location: $CURRENT_TARGET"
-            echo "      Use --force to update"
-        fi
-    fi
-elif [ -e "$PROJECT_LINK" ]; then
-    if [ $FORCE_INSTALL -eq 1 ]; then
-        rm -rf "$PROJECT_LINK"
-        ln -s "$SCRIPT_DIR" "$PROJECT_LINK"
-        echo -e "  ${CHECK_MARK} Replaced directory with symlink"
-    else
-        echo -e "  ${WARNING} $PROJECT_LINK exists but is not a symlink"
-        echo "      Use --force to replace"
-    fi
-else
-    ln -s "$SCRIPT_DIR" "$PROJECT_LINK"
-    echo -e "  ${CHECK_MARK} Created project symlink"
-fi
-
-# ============================================
-# Part 5: Skills Installation
+# Part 3: Skills Installation
 # ============================================
 echo ""
 echo "Skills installation..."
@@ -538,37 +420,17 @@ SKILL_TARGET="$SKILLS_DIR/$SKILL_NAME"
 if [ ! -d "$SKILL_SOURCE" ]; then
     echo -e "  ${WARNING} Skill not found: $SKILL_NAME (skipping)"
 else
+    # Remove legacy symlink if present
     if [ -L "$SKILL_TARGET" ]; then
-        CURRENT_TARGET=$(readlink "$SKILL_TARGET")
-        if [ "$CURRENT_TARGET" = "$SKILL_SOURCE" ]; then
-            echo -e "  ${CHECK_MARK} $SKILL_NAME already linked"
-        else
-            if [ $FORCE_INSTALL -eq 1 ]; then
-                rm "$SKILL_TARGET"
-                ln -s "$SKILL_SOURCE" "$SKILL_TARGET"
-                echo -e "  ${CHECK_MARK} Updated $SKILL_NAME symlink"
-            else
-                echo -e "  ${WARNING} $SKILL_NAME symlink points elsewhere"
-                echo "      Use --force to update"
-            fi
-        fi
-    elif [ -e "$SKILL_TARGET" ]; then
-        if [ $FORCE_INSTALL -eq 1 ]; then
-            rm -rf "$SKILL_TARGET"
-            ln -s "$SKILL_SOURCE" "$SKILL_TARGET"
-            echo -e "  ${CHECK_MARK} Replaced $SKILL_NAME with symlink"
-        else
-            echo -e "  ${WARNING} $SKILL_NAME exists but is not a symlink"
-            echo "      Use --force to replace"
-        fi
-    else
-        ln -s "$SKILL_SOURCE" "$SKILL_TARGET"
-        echo -e "  ${CHECK_MARK} Linked skill: $SKILL_NAME"
+        rm "$SKILL_TARGET"
+        echo -e "  ${INFO} Removed legacy symlink for $SKILL_NAME"
     fi
+    copy_excluding "$SKILL_SOURCE" "$SKILL_TARGET"
+    echo -e "  ${CHECK_MARK} Installed skill: $SKILL_NAME"
 fi
 
 # ============================================
-# Part 6: Certificate Authority Setup
+# Part 4: Certificate Authority Setup
 # ============================================
 echo ""
 echo "Certificate Authority setup..."
@@ -609,7 +471,7 @@ else
 fi
 
 # ============================================
-# Part 7: Verification
+# Part 5: Verification
 # ============================================
 echo ""
 verify_schema
@@ -638,8 +500,7 @@ echo "  • nova-ca infrastructure"
 echo ""
 
 echo "Project location:"
-echo "  • Home: ~/nova-relationships → $SCRIPT_DIR"
-echo "  • Projects: $OPENCLAW_PROJECTS/nova-relationships → $SCRIPT_DIR"
+echo "  • Source: $SCRIPT_DIR"
 echo ""
 
 echo "Usage examples:"
