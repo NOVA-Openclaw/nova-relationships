@@ -79,6 +79,11 @@ if [ -n "$DB_NAME_OVERRIDE" ]; then
     DB_NAME="$DB_NAME_OVERRIDE"
 fi
 
+# Temp file cleanup
+TMPFILES=()
+cleanup_tmp() { rm -f "${TMPFILES[@]}"; }
+trap cleanup_tmp EXIT
+
 # === Prerequisite check: nova-memory lib files must exist ===
 OPENCLAW_LIB="$HOME/.openclaw/lib"
 REQUIRED_LIB_FILES=("pg-env.sh" "pg_env.py" "pg-env.ts" "env-loader.sh" "env_loader.py")
@@ -409,12 +414,14 @@ if [ -d "node_modules" ] && [ $FORCE_INSTALL -eq 0 ]; then
     echo -e "  ${CHECK_MARK} Dependencies already installed (use --force to reinstall)"
 else
     echo "  Running npm install..."
-    if npm install > /tmp/npm-install.log 2>&1; then
+    NPM_LOG=$(mktemp /tmp/npm-install-XXXXXX.log)
+    TMPFILES+=("$NPM_LOG")
+    if npm install > "$NPM_LOG" 2>&1; then
         echo -e "  ${CHECK_MARK} npm install completed"
     else
         echo -e "  ${CROSS_MARK} npm install failed"
-        echo "      Log: /tmp/npm-install.log"
-        tail -20 /tmp/npm-install.log
+        echo "      Log: $NPM_LOG"
+        tail -20 "$NPM_LOG"
         exit 1
     fi
 fi
