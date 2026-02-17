@@ -145,23 +145,40 @@ The system includes experimental infrastructure for building trust networks betw
 - mTLS authentication configured
 - Web of Trust protocols under development
 
-## Installation & Setup
+## Installation
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL (for NOVA Memory database)
-- OpenSSL (for certificate operations)
 
-### Quick Install
+**Required:**
+- Node.js 18+ and npm
+- PostgreSQL with `nova-memory` database already set up
+- `nova-memory` must be installed first (provides required shared library files)
 
-The installer automatically sets up all required symlinks and dependencies:
+**The nova-memory tables must exist:**
+- `entities` — Entity records (people, organizations, concepts)
+- `entity_facts` — Key-value facts about entities
+- `entity_relationships` — Relationships between entities
 
+### Installer Entry Points
+
+**For AI agents with environment pre-configured:**
 ```bash
-cd ~/clawd/nova-relationships
 ./agent-install.sh
 ```
 
-**Symlink Convention:** The installer creates `~/nova-relationships` → repo location. This allows hooks in other projects (like nova-memory) to import entity-resolver via `../../../nova-relationships/lib/entity-resolver` regardless of where the repo is cloned.
+This is the actual installer. It:
+- Verifies database schema (requires nova-memory tables)
+- Installs the entity-resolver TypeScript library
+- Sets up the certificate-authority skill
+- Configures the NOVA CA infrastructure
+- Verifies all components are working
+
+**Common flags:**
+- `--verify-only` — Check installation without modifying anything
+- `--force` — Force overwrite existing files
+- `--database NAME` or `-d NAME` — Override database name (default: `${USER}_memory`)
+
+**Note:** `shell-install.sh` (human-facing wrapper) is planned but not yet implemented. Currently, humans should run `agent-install.sh` directly after setting up their environment (loading database config from `~/.openclaw/postgres.json` and API keys from `~/.openclaw/openclaw.json`).
 
 ### Database Setup
 ```sql
