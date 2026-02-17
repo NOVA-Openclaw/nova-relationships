@@ -15,8 +15,8 @@ let dbPool: pg.Pool | null = null;
  * Derive database name from username (same pattern as nova-memory)
  */
 function getDatabaseName(): string {
-  const user = process.env.POSTGRES_USER || os.userInfo().username;
-  return process.env.POSTGRES_DB || `${user.replace(/-/g, '_')}_memory`;
+  const user = process.env.PGUSER || os.userInfo().username;
+  return process.env.PGDATABASE || `${user.replace(/-/g, '_')}_memory`;
 }
 
 /**
@@ -24,12 +24,12 @@ function getDatabaseName(): string {
  */
 function getDbPool(): pg.Pool {
   if (!dbPool) {
-    const dbUser = process.env.POSTGRES_USER || os.userInfo().username;
+    const dbUser = process.env.PGUSER || os.userInfo().username;
     dbPool = new Pool({
-      host: process.env.POSTGRES_HOST || "localhost",
+      host: process.env.PGHOST || "localhost",
       database: getDatabaseName(),
       user: dbUser,
-      password: process.env.POSTGRES_PASSWORD,
+      password: process.env.PGPASSWORD,
       max: 5,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,
