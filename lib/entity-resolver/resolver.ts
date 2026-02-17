@@ -5,8 +5,14 @@
 import pg from "pg";
 import * as os from "os";
 import type { Entity, EntityFacts, EntityIdentifiers, DbEntity, DbEntityFact } from "./types.ts";
+import { join } from "path";
 
 const { Pool } = pg;
+
+// Load PG* env vars from ~/.openclaw/postgres.json before any DB connections
+const pgEnvPath = join(process.env.HOME || os.homedir(), ".openclaw", "lib", "pg-env.ts");
+const { loadPgEnv } = await import(pgEnvPath);
+loadPgEnv();
 
 // Database connection pool (singleton)
 let dbPool: pg.Pool | null = null;
