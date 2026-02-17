@@ -208,14 +208,14 @@ CREATE INDEX idx_relationships_to_entity ON entity_relationships(to_entity_id);
 
 ### Environment Configuration
 ```bash
-# Database connection
-POSTGRES_HOST=localhost
+# Database connection (standard PG* variables)
+PGHOST=localhost
 # Database name is automatically derived from OS username: {username}_memory
 # Examples: nova → nova_memory, nova-staging → nova_staging_memory  
 # Hyphens in usernames are replaced with underscores
-# Override with POSTGRES_DB if needed (e.g., POSTGRES_DB=custom_memory)
-POSTGRES_USER=nova
-POSTGRES_PASSWORD=your_password
+# Override with PGDATABASE if needed (e.g., PGDATABASE=custom_memory)
+PGUSER=nova
+PGPASSWORD=your_password
 
 # Entity resolver tuning
 ENTITY_CACHE_TTL_MS=1800000  # 30 minutes
