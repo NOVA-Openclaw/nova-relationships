@@ -161,6 +161,22 @@ The system includes experimental infrastructure for building trust networks betw
 
 ### Installer Entry Points
 
+**For humans — recommended entry point:**
+```bash
+./shell-install.sh
+```
+
+A **non-interactive** prerequisite-checking wrapper that validates your environment before running the installer. Unlike nova-memory's `shell-install.sh`, it does **not** prompt for configuration — it expects nova-memory to already be installed. It performs the following checks:
+
+1. **jq** is installed
+2. **Database configuration** exists — either `~/.openclaw/postgres.json` or PG environment variables (`PGHOST`, `PGDATABASE`, `PGUSER`)
+3. **postgres.json validity** — all required fields present (`host`, `port`, `database`, `user`)
+4. **pg-env.sh** exists at `~/.openclaw/lib/pg-env.sh` (installed by nova-memory)
+5. **env-loader.sh** loaded if available (optional, non-fatal)
+6. **Database reachability** — connects via `psql` to verify the database is up
+
+If all checks pass, it execs `agent-install.sh` with any flags you passed through.
+
 **For AI agents with environment pre-configured:**
 ```bash
 ./agent-install.sh
@@ -173,12 +189,10 @@ This is the actual installer. It:
 - Configures the NOVA CA infrastructure
 - Verifies all components are working
 
-**Common flags:**
+**Common flags** (passed through `shell-install.sh` or directly to `agent-install.sh`):
 - `--verify-only` — Check installation without modifying anything
 - `--force` — Force overwrite existing files
 - `--database NAME` or `-d NAME` — Override database name (default: `${USER}_memory`)
-
-**Note:** `shell-install.sh` (human-facing wrapper) is planned but not yet implemented. Currently, humans should run `agent-install.sh` directly after setting up their environment (loading database config from `~/.openclaw/postgres.json` and API keys from `~/.openclaw/openclaw.json`).
 
 ### Database Setup
 ```sql
